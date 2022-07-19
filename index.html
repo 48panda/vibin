@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Title of the document</title>
+<title>Vibe</title>
 <style>
 * {
   margin: 0;
@@ -229,16 +229,9 @@ start=()=>{
   t = randint(0,2)
   preloadIntro(t)
   startTrack(t)
-  document.getElementById("start").style.display = "none";
-  document.getElementById("stop").style.display = "block";
-}
-stop=()=>{
-  audios.forEach(x=>{x.pause();x.currentTime = 0;})
-  document.getElementById("start").style.display = "block";
-  document.getElementById("stop").style.display = "none";
-  document.getElementById("pulse").classList = "";
-  document.getElementById("pulse2").classList = "";
-  document.getElementById("pulse3").classList = "";
+  document.getElementById("start").style.transition = "30s";
+  document.getElementById("start").disabled = true;
+  document.getElementById("start").style.opacity = 0;
 }
 </script>
 </body>
