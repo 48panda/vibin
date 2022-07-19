@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title of the document</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#bg {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("T_NightNight_ColorPass.png");
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+}
+@keyframes pulse {
+  0% {opacity: 1}
+  25% {opacity: 0}
+  100% {opacity: 0}
+}
+@keyframes pulse2 {
+  0% {opacity: 1}
+  50% {opacity: 0}
+  100% {opacity: 0}
+}
+.pulse1 {
+  animation-name: pulse;
+  animation-duration: calc(calc(60s * calc(1 / var(--bpm))) * 4);
+  animation-iteration-count: infinite;
+}
+.pulse2 {
+  animation-name: pulse2;
+  animation-duration: calc(calc(60s * calc(1 / var(--bpm))) * 2);
+  animation-iteration-count: infinite;
+  animation-delay: calc(60s * calc(1 / var(--bpm)));
+}
+.pulse3 {
+  animation-name: pulse;
+  animation-duration: calc(calc(60s * calc(1 / var(--bpm))) * 4);
+  animation-iteration-count: infinite;
+  animation-delay: calc(calc(60s * calc(1 / var(--bpm))) * 2);
+}
+.track1 {
+  --bpm: 80;
+}
+.track2 {
+  --bpm: 95;
+}
+.track3 {
+  --bpm: 85;
+}
+#pulse {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("beat1.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  position: absolute;
+}
+#pulse2 {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("beat2.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  position: absolute;
+ }
+ #pulse3 {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("beat3.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  position: absolute;
+ }
+.btn {
+  font-size: 5em;
+  clip-path: polygon(0% 16%, 100% 6%, 98% 100%, 2% 90%);
+  padding: 0.3875em 1em 0.125em;
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  background-color: yellow;
+  transition: 0.4s;
+  transform: translate(-50%, -50%);
+}
+.btn:hover {
+  clip-path: polygon(0% 12%, 96% 10%, 98% 100%, 2% 90%);
+}
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+<div id="bg"></div>
+<div id="pulse"></div>
+<div id="pulse2"></div>
+<div id="pulse3"></div>
+<button onclick="start()" id="start" class="btn">Start Vibin'</button>
+<button onclick="stop()" id="stop" class="btn hidden">Stop Vibin'</button>
+
+<script>
+bpms = [80, 95, 85];
+function randint(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+getFileName=(inst, n, aorb, t)=>{
+  ab = ["A", "B"][aorb]
+  return `audio/MX_Track0${t}_${inst}${ab}_0${n}.ogg`;
+}
+genPart=inst=>{
+  let tracks = [];
+  for(var t = 1; t < 4; t++){
+    let track = [];
+    for(var ab = 0; ab < 2; ab++){
+      let variations = [];
+      for(var n = 1; n < 6; n++){
+        variations.push(getFileName(inst, n, ab, t));
+      }
+      track.push(variations);
+    }
+    tracks.push(track);
+  }
+  return tracks;
+}
+playRandom=(lst, track, ab, n)=> {
+    if (typeof lst[track][ab][n] == "string") {
+      var snd1  = new Audio();
+      var src1  = document.createElement("source");
+      src1.type = "audio/ogg";
+      src1.src  = lst[track][ab][n];
+      console.log(lst[track][ab][n]);
+      snd1.appendChild(src1);
+      lst[track][ab][n] = snd1
+      audios.push(snd1)
+    }    
+}
+preloadNext=(track, ab)=>{
+  toplay = [randint(0,4),randint(0,4),randint(0,4),randint(0,4),randint(0,4)];
+  playRandom(Bass, track, ab, toplay[0])
+  console.log(Bass)
+  playRandom(Beat, track, ab, toplay[1])
+  playRandom(Chrd, track, ab, toplay[2])
+  playRandom(Mldy, track, ab, toplay[3])
+  playRandom(Perc, track, ab, toplay[4])
+  return toplay
+  
+}
+preloadOutro=(track)=>{
+  if (typeof outros[track] == "string") {
+    var snd1  = new Audio();
+    var src1  = document.createElement("source");
+    src1.type = "audio/ogg";
+    src1.src  = outros[track];
+    console.log(outros[track]);
+    snd1.appendChild(src1);
+    outros[track] = snd1
+    audios.push(snd1)
+  }
+}
+preloadIntro=(track)=>{
+  if (typeof intros[track] == "string") {
+    var snd1  = new Audio();
+    var src1  = document.createElement("source");
+    src1.type = "audio/ogg";
+    src1.src  = intros[track];
+    console.log(intros[track]);
+    snd1.appendChild(src1);
+    intros[track] = snd1
+    audios.push(snd1)
+  }
+}
+playOutro=track=>{
+  outros[track].play();
+  nexttrack = track + 1
+  if(nexttrack == 3) {nexttrack = 0}
+  preloadIntro(nexttrack)
+  setTimeout(()=>startTrack(nexttrack), 10000)
+  document.getElementById("pulse").classList = "";
+  document.getElementById("pulse2").classList = "";
+  document.getElementById("pulse3").classList = "";
+}
+midTrack=(track,ab,repeat, toplay)=>{
+  Bass[track][ab][toplay[0]].play();
+  Beat[track][ab][toplay[1]].play();
+  Chrd[track][ab][toplay[2]].play();
+  Mldy[track][ab][toplay[3]].play();
+  Perc[track][ab][toplay[4]].play();
+  console.log("HI")
+  newrepeat = repeat + 1
+  newab = ab
+  if (newrepeat == 1) {newrepeat=0;newab++}
+  if (newab == 2) {
+    preloadOutro(track)
+    setTimeout(()=>playOutro(track), 20000);
+    return
+  }
+  console.log(newrepeat, newab)
+  toplaynext = preloadNext(track, newab);
+  setTimeout(()=>midTrack(track, newab, newrepeat, toplaynext), 1000 * 60/bpms[track] * 32);
+
+}
+startTrack=track=> {
+  intros[track].play()
+  toplay = preloadNext(track, 0);
+  document.getElementById("pulse").classList = "pulse1 track"+(track+1);
+  document.getElementById("pulse2").classList = "pulse2 track"+(track+1);
+  document.getElementById("pulse3").classList = "pulse3 track"+(track+1);
+  setTimeout(()=>midTrack(track, 0, 0, toplay), 1000 * 60/bpms[track] * 16);
+}
+Bass = genPart("Bass")
+Beat = genPart("Beat")
+Chrd = genPart("Chordal")
+Mldy = genPart("Melody")
+Perc = genPart("Perc")
+outros = ["audio/MX_Track01_Outro.ogg","audio/MX_Track02_Outro.ogg","audio/MX_Track03_Outro.ogg"]
+intros = ["audio/MX_Track01_Intro.ogg","audio/MX_Track02_Intro.ogg","audio/MX_Track03_Intro.ogg"]
+audios = []
+console.log(Bass)
+start=()=>{
+  t = randint(0,2)
+  preloadIntro(t)
+  startTrack(t)
+  document.getElementById("start").style.display = "none";
+  document.getElementById("stop").style.display = "block";
+}
+stop=()=>{
+  audios.forEach(x=>{x.pause();x.currentTime = 0;})
+  document.getElementById("start").style.display = "block";
+  document.getElementById("stop").style.display = "none";
+}
+</script>
+</body>
+
+</html>
