@@ -208,7 +208,7 @@ midTrack=(track,ab,repeat, toplay)=>{
   console.log("HI")
   newrepeat = repeat + 1
   newab = ab
-  if (newrepeat == 1) {newrepeat=0;newab++}
+  if (newrepeat == 3) {newrepeat=0;newab++}
   if (newab == 2) {
     preloadOutro(track)
     setTimeout(()=>playOutro(track), 20000);
